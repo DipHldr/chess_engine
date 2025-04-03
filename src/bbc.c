@@ -186,7 +186,7 @@ U64 bitboards[12];
 U64 occupancies[3];
 
 //side to move
-int side = -1;
+int side;
 
 //enpassant square
 int enpassant = no_sq;
@@ -319,6 +319,63 @@ printf("\n");
 	//print bitboard unsigned decimal number
 
 	printf("       BitBoard: %llud\n\n", bitboard);
+}
+
+
+//print board
+void print_board() {
+
+	printf("\n");
+	//loop over board ranks
+	for (int rank = 0;rank < 8;rank++) {
+	
+		//loop over board files
+		for (int file = 0;file < 8;file++) {
+		
+			//init square
+			int square = rank * 8 + file;
+
+			//print ranks
+			if (!file)
+				printf(" %d ",8-rank);
+
+			//define piece variable
+			int piece = -1;
+
+			//loop over all piece bit boards
+			for (int bb_piece = P;bb_piece <= k;bb_piece++) {
+				if (get_bit(bitboards[bb_piece], square)) {
+				
+					piece = bb_piece;
+				}
+			}
+
+			//print different piece set depending on operating system
+		#if defined(_WIN32)|| defined(_WIN64)
+			printf(" %c", (piece == -1) ? '.' : ascii_pieces[piece]);
+		#else
+			printf(" %s", (piece == -1) ? '.' : unicode_pieces[piece]);
+		#endif
+
+		}
+		//print new line every rank
+		printf("\n");
+	}
+
+	//print board files
+	printf("\n    a c b d e f g h\n");
+
+	//print side to move
+	printf("     Side:\t%s\n", !side ? "white" : "black");
+
+	//print enpassant square
+	printf("     Enpassant:\t%s\n", (enpassant!=no_sq)?square_to_coordinates[enpassant]:"no");
+
+	//print castling rights
+	printf("     Castling:  %c%c%c%c\n\n", (castle & wk) ? 'K' : '-',
+										  (castle & wq) ? 'Q' : '-',
+										  (castle & bk) ? 'k' : '-',
+										  (castle & bq) ? 'q' : '-');
 }
 
 /*
@@ -1044,22 +1101,88 @@ int main() {
 	//init all
 	init_all();
 
-	//set white pawn on e2
+	//set white pawns
+	set_bit(bitboards[P], a2);
+	set_bit(bitboards[P], b2);
+	set_bit(bitboards[P], c2);
+	set_bit(bitboards[P], d2);
 	set_bit(bitboards[P], e2);
+	set_bit(bitboards[P], f2);
+	set_bit(bitboards[P], g2);
+	set_bit(bitboards[P], h2);
 
+
+	//set white knights
+	set_bit(bitboards[N], b1);
+	set_bit(bitboards[N], g1);
+
+	//set white bishops
+	set_bit(bitboards[B], c1);
+	set_bit(bitboards[B], f1);
+
+	//set white rooks
+	set_bit(bitboards[R], a1);
+	set_bit(bitboards[R], h1);
+
+	//set white king & king
+	set_bit(bitboards[Q], d1);
+	set_bit(bitboards[K], e1);
+
+
+
+	//black pieces
+	//set white pawns
+	set_bit(bitboards[p], a7);
+	set_bit(bitboards[p], b7);
+	set_bit(bitboards[p], c7);
+	set_bit(bitboards[p], d7);
+	set_bit(bitboards[p], e7);
+	set_bit(bitboards[p], f7);
+	set_bit(bitboards[p], g7);
+	set_bit(bitboards[p], h7);
+
+
+	//set white knights
+	set_bit(bitboards[n], b8);
+	set_bit(bitboards[n], g8);
+
+	//set white bishops
+	set_bit(bitboards[b], c8);
+	set_bit(bitboards[b], f8);
+
+	//set white rooks
+	set_bit(bitboards[r], a8);
+	set_bit(bitboards[r], h8);
+
+	//set white king & king
+	set_bit(bitboards[q], d8);
+	set_bit(bitboards[k], e8);
+
+
+	//init side
+	side = black;
+	
+	//init enpassant
+	enpassant = e3;
+	//init castling
+	castle |= wk;
+	castle |= wq;
+	castle |= bk;
+	castle |= bq;
 	//print white pawn bit board
-	print_bitboard(bitboards[P]);
+	//print_bitboard(bitboards[P]);
 
-	//print piece
-#if defined(_WIN64) || defined(_WIN32)
-	printf("piece: %c\n",ascii_pieces[P]);
-	printf("piece: %c\n", ascii_pieces[char_pieces['K']]);
-#else
-	printf("piece: %s\n",unicode_pieces[P]);
-	printf("piece: %s\n",unicode_pieces[char_pieces['K']]);
+	//print chess board
+	print_board();
 
-#endif
-
+	//print all bit boards
+	for (int piece = P;piece <= k;piece++) {
+		//print current bit board
+		print_bitboard(bitboards[piece]);
+		getchar();
+	
+	}
+		 
 	
 	
 	
