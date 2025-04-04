@@ -1227,6 +1227,48 @@ static inline U64 get_rook_attacks(int square, U64 occupancy) {
 }
 
 
+
+//get queen attacks
+static inline U64 get_queen_attacks(int square, U64 occupancy) {
+
+	
+	//init result attacks bitboard
+	U64 queeen_attacks = 0ULL;
+
+	//init bishop occupancies
+	U64 bishop_occupancy = occupancy;
+	
+	//init rook occupancies
+	U64 rook_occupancy = occupancy;
+	
+	// get bishop attacks assuming current board occupancy
+	bishop_occupancy &= bishop_masks[square];
+	bishop_occupancy *= bishop_magic_numbers[square];
+	bishop_occupancy >>= (64 - bishop_relevant_bits[square]);
+
+	//get bishop attacks
+	queeen_attacks = bishop_attacks[square][bishop_occupancy];
+
+	// get rook attacks assuming current board occupancy
+	rook_occupancy &= rook_masks[square];
+	rook_occupancy *= rook_magic_numbers[square];
+	rook_occupancy >>= (64 - rook_relevant_bits[square]);
+
+	//get rook attacks
+	queeen_attacks |= rook_attacks[square][rook_occupancy];
+
+
+	//return queen attacks
+	return queeen_attacks;
+
+	//return rook attacks
+	//return  rook_attacks[square][occupancy];
+
+}
+
+
+
+
 /*
 * ***************************
 * init all
@@ -1259,53 +1301,21 @@ int main() {
 	//init all
 	init_all();
 
-	//parse fen
-	parse_fen(start_position);
-	//parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b Kk h8 0 1 ");
+	//init occupancy bitboard
+	U64 occupancy = 0ULL;
 
+	set_bit(occupancy, b6);
+	set_bit(occupancy, d6);
+	set_bit(occupancy, f6);
+	set_bit(occupancy, g4);
+	set_bit(occupancy, c3);
+	set_bit(occupancy, d3);
+	set_bit(occupancy, e3);
 
-	//print chess board
-	print_board();
-	
-	//print white occupancies
-	print_bitboard(occupancies[white]);
-
-	//print black occupancies
-	print_bitboard(occupancies[black]);
-
-	//print all occupancies
-	print_bitboard(occupancies[both]);
-
-
-
-	//parse fen
-	//parse_fen(tricky_position);
-	parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b Kk h8 0 1 ");
-
-
-	//print chess board
-	print_board();
-
-
-
-
-
-	//parse fen
-	parse_fen(cmk_position);
-
-
-	//print chess board
-	print_board();
-
-	//print white occupancies
-	print_bitboard(occupancies[white]);
-
-	//print black occupancies
-	print_bitboard(occupancies[black]);
-
-	//print all occupancies
-	print_bitboard(occupancies[both]);
-	
+	//print occupancies
+	print_bitboard(occupancy);
+	//get queen attacks
+	print_bitboard(get_queen_attacks(d4, occupancy));
 	
 	
 	return 0;
