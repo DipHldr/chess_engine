@@ -1308,21 +1308,21 @@ static inline void generate_moves() {
 						if (source_square >= a7 && source_square <= h7) {
 
 							//add move ino a move list
-							printf(" pawn promotion: %s%sq\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
-							printf(" pawn promotion: %s%sr\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
-							printf(" pawn promotion: %s%sb\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
-							printf(" pawn promotion: %s%sn\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sq   pawn promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sr   pawn promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sb   pawn promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sn   pawn promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
 
 						}
 						else {
 						
 							//one square ahead pawn move
-							printf(" pawn push: %s%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%s   pawn push\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
 
 							//two squares ahead pawn move
 							if ((source_square >= a2 && source_square <= h2) && !get_bit(occupancies[both], target_square - 8)) {
 							
-								printf(" double pawn push: %s%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square - 8]);
+								printf("%s%s   double pawn push\n", square_to_coordinates[source_square], square_to_coordinates[target_square - 8]);
 
 							}
 						}
@@ -1341,16 +1341,16 @@ static inline void generate_moves() {
 						if (source_square >= a7 && source_square <= h7) {
 
 							//add move ino a move list
-							printf(" pawn capture promotion: %s%sq\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
-							printf(" pawn capture promotion: %s%sr\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
-							printf(" pawn capture promotion: %s%sb\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
-							printf(" pawn capture promotion: %s%sn\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sq   pawn capture promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sr   pawn capture promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sb   pawn capture promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sn   pawn capture promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
 
 						}
 						else {
 
 							//one square ahead pawn move
-							printf(" pawn capture: %s%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%s   pawn capture\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
 						}
 
 						//pop ls1b of the pawn attacks
@@ -1371,7 +1371,7 @@ static inline void generate_moves() {
 						
 							//init enpassant capture target square
 							int target_enpassant = get_ls1b_index(enpassant_attacks);
-							printf(" pawn enpassant capture : %s%s\n", square_to_coordinates[source_square], square_to_coordinates[target_enpassant]);
+							printf("%s%s   pawn enpassant capture\n", square_to_coordinates[source_square], square_to_coordinates[target_enpassant]);
 
 						}
 					}
@@ -1442,21 +1442,21 @@ static inline void generate_moves() {
 						if (source_square >= a2 && source_square <= h2) {
 
 							//add move ino a move list
-							printf(" pawn promotion: %s%sq\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
-							printf(" pawn promotion: %s%sr\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
-							printf(" pawn promotion: %s%sb\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
-							printf(" pawn promotion: %s%sn\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sq   pawn promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sr   pawn promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sb   pawn promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%sn   pawn promotion\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
 
 						}
 						else {
 
 							//one square ahead pawn move
-							printf(" pawn push: %s%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%s   pawn push\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
 
 							//two squares ahead pawn move
 							if ((source_square >= a7 && source_square <= h7) && !get_bit(occupancies[both], target_square + 8)) {
 
-								printf(" double pawn push: %s%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square + 8]);
+								printf("%s%s   double pawn push\n", square_to_coordinates[source_square], square_to_coordinates[target_square + 8]);
 
 
 							}
@@ -1486,7 +1486,7 @@ static inline void generate_moves() {
 						else {
 
 							//one square ahead pawn move
-							printf(" pawn capture: %s%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+							printf("%s%s   pawn capture\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
 						}
 
 						//pop ls1b of the pawn attacks
@@ -1557,18 +1557,234 @@ static inline void generate_moves() {
 		}
 
 		//generate knight moves
-		 
+		if ((side == white) ? piece == N : piece == n) {
+		
+			//loop over source squares of pieces bitboard copy
+			while (bitboard) {
+			
+				//init source square
+				source_square = get_ls1b_index(bitboard);
+
+				//init piece attacks in order to get set of target squares
+				attacks = knight_attacks[source_square] & ((side == white) ? ~occupancies[white] : ~occupancies[black]);
+
+				//loop over target squares available from generated attacks
+				while (attacks) {
+
+					//init target square
+					target_square = get_ls1b_index(attacks);
+
+					//quiet move
+					if (!get_bit(((side == white) ? occupancies[black] : occupancies[white]), target_square)) {
+					
+						printf("%s%s   knight piece quiet move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+
+
+					}
+					else {
+					
+						//capture move
+						printf("%s%s   knight piece capture move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+					
+					}
+
+
+
+					//pop ls1b in current attacks set
+					pop_bit(attacks, target_square);
+				}
+				
+
+				//pop ls1b of the current bit board copy
+				pop_bit(bitboard,source_square);
+
+
+			}
+		}
 		
 		//generate bishop moves
-		
+		if ((side == white) ? piece == B : piece == b) {
+
+			//loop over source squares of pieces bitboard copy
+			while (bitboard) {
+
+				//init source square
+				source_square = get_ls1b_index(bitboard);
+
+				//init piece attacks in order to get set of target squares
+				attacks = get_bishop_attacks(source_square,occupancies[both]) & ((side == white) ? ~occupancies[white] : ~occupancies[black]);
+
+				//loop over target squares available from generated attacks
+				while (attacks) {
+
+					//init target square
+					target_square = get_ls1b_index(attacks);
+
+					//quiet move
+					if (!get_bit(((side == white) ? occupancies[black] : occupancies[white]), target_square)) {
+
+						printf("%s%s   bishop piece quiet move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+
+
+					}
+					else {
+
+						//capture move
+						printf("%s%s   bishop piece capture move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+
+					}
+
+
+
+					//pop ls1b in current attacks set
+					pop_bit(attacks, target_square);
+				}
+
+
+				//pop ls1b of the current bit board copy
+				pop_bit(bitboard, source_square);
+
+
+			}
+		}
 		
 		//generate rook moves
-		
+		if ((side == white) ? piece == R : piece == r) {
+
+			//loop over source squares of pieces bitboard copy
+			while (bitboard) {
+
+				//init source square
+				source_square = get_ls1b_index(bitboard);
+
+				//init piece attacks in order to get set of target squares
+				attacks = get_rook_attacks(source_square, occupancies[both]) & ((side == white) ? ~occupancies[white] : ~occupancies[black]);
+
+				//loop over target squares available from generated attacks
+				while (attacks) {
+
+					//init target square
+					target_square = get_ls1b_index(attacks);
+
+					//quiet move
+					if (!get_bit(((side == white) ? occupancies[black] : occupancies[white]), target_square)) {
+
+						printf("%s%s   rook piece quiet move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+
+
+					}
+					else {
+
+						//capture move
+						printf("%s%s   rook piece capture move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+
+					}
+
+
+
+					//pop ls1b in current attacks set
+					pop_bit(attacks, target_square);
+				}
+
+
+				//pop ls1b of the current bit board copy
+				pop_bit(bitboard, source_square);
+
+
+			}
+		}
 		
 		//generate queen moves
-		
+		if ((side == white) ? piece == Q : piece == q) {
+
+			//loop over source squares of pieces bitboard copy
+			while (bitboard) {
+
+				//init source square
+				source_square = get_ls1b_index(bitboard);
+
+				//init piece attacks in order to get set of target squares
+				attacks = get_queen_attacks(source_square, occupancies[both]) & ((side == white) ? ~occupancies[white] : ~occupancies[black]);
+
+				//loop over target squares available from generated attacks
+				while (attacks) {
+
+					//init target square
+					target_square = get_ls1b_index(attacks);
+
+					//quiet move
+					if (!get_bit(((side == white) ? occupancies[black] : occupancies[white]), target_square)) {
+
+						printf("%s%s   queen piece quiet move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+
+
+					}
+					else {
+
+						//capture move
+						printf("%s%s   queen piece capture move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+
+					}
+
+
+
+					//pop ls1b in current attacks set
+					pop_bit(attacks, target_square);
+				}
+
+
+				//pop ls1b of the current bit board copy
+				pop_bit(bitboard, source_square);
+
+
+			}
+		}
 		
 		//generate king moves
+		if ((side == white) ? piece == K : piece == k) {
+
+			//loop over source squares of pieces bitboard copy
+			while (bitboard) {
+
+				//init source square
+				source_square = get_ls1b_index(bitboard);
+
+				//init piece attacks in order to get set of target squares
+				attacks = king_attacks[source_square] & ((side == white) ? ~occupancies[white] : ~occupancies[black]);
+
+				//loop over target squares available from generated attacks
+				while (attacks) {
+
+					//init target square
+					target_square = get_ls1b_index(attacks);
+
+					//quiet move
+					if (!get_bit(((side == white) ? occupancies[black] : occupancies[white]), target_square)) {
+
+						printf("%s%s   king piece quiet move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+
+
+					}
+					else {
+
+						//capture move
+						printf("%s%s   king piece capture move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
+
+					}
+
+
+
+					//pop ls1b in current attacks set
+					pop_bit(attacks, target_square);
+				}
+
+
+				//pop ls1b of the current bit board copy
+				pop_bit(bitboard, source_square);
+
+
+			}
+		}
 	}
 }
 
