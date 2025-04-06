@@ -16,9 +16,12 @@
 #define killer_position "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1"
 #define cmk_position "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9 "
 
+//---------------------->
+//function declarations
 
+static inline int is_square_attacked(int square, int side);
 
-
+//---------------------->
 //board squares
 
 enum {
@@ -1321,7 +1324,6 @@ static inline void generate_moves() {
 							
 								printf(" double pawn push: %s%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square - 8]);
 
-
 							}
 						}
 					}
@@ -1377,6 +1379,41 @@ static inline void generate_moves() {
 
 					//pop ls1b from piece bitboard copy
 					pop_bit(bitboard,source_square);
+				}
+			}
+
+			//castling moves
+			if (piece == K) {
+			
+				//king side castling is available
+				if (castle & wk) {
+				
+					//make sure square is between king and king's rooks are empty
+					if (!get_bit(occupancies[both], f1) && !get_bit(occupancies[both], g1)) {
+					
+						//make sure king and the F1 squares are not under attack
+						if (!is_square_attacked(e1, black) && !is_square_attacked(f1, black)) {
+						
+							printf(" castling move: e1g1\n");
+
+						}
+					}
+				}
+
+				//queen side castling is available
+				if (castle & wq) {
+					//make sure square is between king and queens's rooks are empty
+					if (!get_bit(occupancies[both], d1) && !get_bit(occupancies[both], c1) && !get_bit(occupancies[both], b1)) {
+
+						//make sure king and the d1 squares are not under attack
+						if (!is_square_attacked(e1, black) && !is_square_attacked(d1, black)) {
+
+							printf(" castling move: e1c1\n");
+
+						}
+					}
+				
+
 				}
 			}
 
@@ -1480,7 +1517,42 @@ static inline void generate_moves() {
 					pop_bit(bitboard, source_square);
 				}
 			}
-		
+
+
+			//castling moves
+			if (piece == k) {
+
+				//king side castling is available
+				if (castle & bk) {
+
+					//make sure square is between king and king's rooks are empty
+					if (!get_bit(occupancies[both], f8) && !get_bit(occupancies[both], g8)) {
+
+						//make sure king and the F8 squares are not under attack
+						if (!is_square_attacked(e8, white) && !is_square_attacked(f8, white)) {
+
+							printf(" castling move: e8g8\n");
+
+						}
+					}
+				}
+
+				//queen side castling is available
+				if (castle & bq) {
+					//make sure square is between king and queens's rooks are empty
+					if (!get_bit(occupancies[both], d8) && !get_bit(occupancies[both], c8) && !get_bit(occupancies[both], b8)) {
+
+						//make sure king and the d8 squares are not under attack
+						if (!is_square_attacked(e8, white) && !is_square_attacked(d8, white)) {
+
+							printf(" castling move: e8c8\n");
+
+						}
+					}
+
+
+				}
+			}
 
 		}
 
@@ -1619,7 +1691,7 @@ int main() {
 
 	//parse custom fen string
 	//parse_fen("8/3P4/8/4Q3/8/8/8/8 w - - ");
-	parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/Pp2P3/2N2Q1p/1PPBBPpP/R3K2R b KQkq a3 0 1 ");
+	parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ");
 	
 	print_board();
 	
