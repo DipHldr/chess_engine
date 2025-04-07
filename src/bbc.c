@@ -1281,6 +1281,103 @@ static inline U64 get_queen_attacks(int square, U64 occupancy) {
 }
 
 
+
+
+
+
+
+
+
+
+/*
+******************************
+* Move Generator
+* ****************************
+*/
+
+// is current given square attacked by the current given side
+static inline int is_square_attacked(int square, int side) {
+
+	//attacked by white pawns
+	if ((side == white) && (pawn_attacks[black][square] & bitboards[P])) {
+	
+		return 1;
+	}
+
+
+	if ((side == black) && (pawn_attacks[white][square] & bitboards[p])) {
+		return 1;
+	}
+
+	//attacked by knight
+	if (knight_attacks[square] & ((side == white) ? bitboards[N] : bitboards[n])) {
+		return 1;
+	}
+
+	//attacked by bishops
+	if (get_bishop_attacks(square,occupancies[both]) & ((side == white) ? bitboards[B] : bitboards[b])) {
+	
+		return 1;
+	}
+
+
+	//attacked by rook
+	if (get_rook_attacks(square, occupancies[both]) & ((side == white) ? bitboards[R] : bitboards[r])) {
+
+		return 1;
+	}
+
+
+	//attacked by queen
+	if (get_queen_attacks(square, occupancies[both]) & ((side == white) ? bitboards[Q] : bitboards[q])) {
+
+		return 1;
+	}
+
+
+
+	//attacked by king
+	if (king_attacks[square] & ((side == white) ? bitboards[K] : bitboards[k])) {
+		return 1;
+	}
+
+
+	//by default return false
+	return 0;
+}
+
+//print attack squares
+void print_attacked_squares(int side) {
+
+	printf("\n");
+
+	//loop over board ranks
+	for (int rank = 0;rank < 8;rank++) {
+	
+		//loop over board files
+		for (int file = 0;file < 8;file++) {
+		
+			//init current square
+			int square = rank * 8 + file;
+
+			//print ranks
+			if (!file)
+				printf(" %d ", 8 - rank);
+
+			//check whether the current square is attacked or not
+			printf(" %d",is_square_attacked(square, side)?1:0);
+		}
+
+		//print new line every rank
+		printf("\n");
+
+
+	}
+
+	//print files
+	printf("\n    a b c d e f g h\n\n");
+}
+
 /*
 
 
@@ -1410,9 +1507,6 @@ void print_move_list(moves* move_list) {
 }
 
 
-
-
-
 // generate all moves
 static inline void generate_moves() {
 
@@ -1424,16 +1518,16 @@ static inline void generate_moves() {
 
 	//loop over all the bitboards
 	for (int piece = P;piece <= k;piece++) {
-	
+
 		//init piece bitboard copy
 		bitboard = bitboards[piece];
 
 		// generate white pawns and white king castling moves
 		if (side == white) {
-		
+
 			//pickup white pawn bitboards index
 			if (piece == P) {
-			
+
 				//loop over white pawns within white pawn bitboard
 				while (bitboard) {
 
@@ -1446,7 +1540,7 @@ static inline void generate_moves() {
 
 					//generate quite pawn moves
 					if (!(target_square < a8) && !get_bit(occupancies[both], target_square)) {
-					
+
 						//pawn promotion
 						if (source_square >= a7 && source_square <= h7) {
 
@@ -1458,13 +1552,13 @@ static inline void generate_moves() {
 
 						}
 						else {
-						
+
 							//one square ahead pawn move
 							printf("%s%s   pawn push\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
 
 							//two squares ahead pawn move
 							if ((source_square >= a2 && source_square <= h2) && !get_bit(occupancies[both], target_square - 8)) {
-							
+
 								printf("%s%s   double pawn push\n", square_to_coordinates[source_square], square_to_coordinates[target_square - 8]);
 
 							}
@@ -1476,7 +1570,7 @@ static inline void generate_moves() {
 
 					//generate pawn captures
 					while (attacks) {
-					
+
 						//init target square
 						target_square = get_ls1b_index(attacks);
 
@@ -1505,38 +1599,38 @@ static inline void generate_moves() {
 
 					//generate enpassant captures
 					if (enpassant != no_sq) {
-					
+
 						// lookup pawn attacks and bitwise AND with enpassant square (bit)
 						U64 enpassant_attacks = pawn_attacks[side][source_square] & (1ULL << enpassant);
 
 						//make sure enpassant capture available
 						if (enpassant_attacks) {
-						
+
 							//init enpassant capture target square
 							int target_enpassant = get_ls1b_index(enpassant_attacks);
 							printf("%s%s   pawn enpassant capture\n", square_to_coordinates[source_square], square_to_coordinates[target_enpassant]);
 
 						}
 					}
-					
+
 
 					//pop ls1b from piece bitboard copy
-					pop_bit(bitboard,source_square);
+					pop_bit(bitboard, source_square);
 				}
 			}
 
 			//castling moves
 			if (piece == K) {
-			
+
 				//king side castling is available
 				if (castle & wk) {
-				
+
 					//make sure square is between king and king's rooks are empty
 					if (!get_bit(occupancies[both], f1) && !get_bit(occupancies[both], g1)) {
-					
+
 						//make sure king and the F1 squares are not under attack
 						if (!is_square_attacked(e1, black) && !is_square_attacked(f1, black)) {
-						
+
 							printf(" castling move: e1g1\n");
 
 						}
@@ -1555,7 +1649,7 @@ static inline void generate_moves() {
 
 						}
 					}
-				
+
 
 				}
 			}
@@ -1701,10 +1795,10 @@ static inline void generate_moves() {
 
 		//generate knight moves
 		if ((side == white) ? piece == N : piece == n) {
-		
+
 			//loop over source squares of pieces bitboard copy
 			while (bitboard) {
-			
+
 				//init source square
 				source_square = get_ls1b_index(bitboard);
 
@@ -1719,16 +1813,16 @@ static inline void generate_moves() {
 
 					//quiet move
 					if (!get_bit(((side == white) ? occupancies[black] : occupancies[white]), target_square)) {
-					
+
 						printf("%s%s   knight piece quiet move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
 
 
 					}
 					else {
-					
+
 						//capture move
 						printf("%s%s   knight piece capture move\n", square_to_coordinates[source_square], square_to_coordinates[target_square]);
-					
+
 					}
 
 
@@ -1736,15 +1830,15 @@ static inline void generate_moves() {
 					//pop ls1b in current attacks set
 					pop_bit(attacks, target_square);
 				}
-				
+
 
 				//pop ls1b of the current bit board copy
-				pop_bit(bitboard,source_square);
+				pop_bit(bitboard, source_square);
 
 
 			}
 		}
-		
+
 		//generate bishop moves
 		if ((side == white) ? piece == B : piece == b) {
 
@@ -1755,7 +1849,7 @@ static inline void generate_moves() {
 				source_square = get_ls1b_index(bitboard);
 
 				//init piece attacks in order to get set of target squares
-				attacks = get_bishop_attacks(source_square,occupancies[both]) & ((side == white) ? ~occupancies[white] : ~occupancies[black]);
+				attacks = get_bishop_attacks(source_square, occupancies[both]) & ((side == white) ? ~occupancies[white] : ~occupancies[black]);
 
 				//loop over target squares available from generated attacks
 				while (attacks) {
@@ -1790,7 +1884,7 @@ static inline void generate_moves() {
 
 			}
 		}
-		
+
 		//generate rook moves
 		if ((side == white) ? piece == R : piece == r) {
 
@@ -1836,7 +1930,7 @@ static inline void generate_moves() {
 
 			}
 		}
-		
+
 		//generate queen moves
 		if ((side == white) ? piece == Q : piece == q) {
 
@@ -1882,7 +1976,7 @@ static inline void generate_moves() {
 
 			}
 		}
-		
+
 		//generate king moves
 		if ((side == white) ? piece == K : piece == k) {
 
@@ -1934,97 +2028,6 @@ static inline void generate_moves() {
 
 
 
-
-
-
-/*
-******************************
-* Move Generator
-* ****************************
-*/
-
-// is current given square attacked by the current given side
-static inline int is_square_attacked(int square, int side) {
-
-	//attacked by white pawns
-	if ((side == white) && (pawn_attacks[black][square] & bitboards[P])) {
-	
-		return 1;
-	}
-
-
-	if ((side == black) && (pawn_attacks[white][square] & bitboards[p])) {
-		return 1;
-	}
-
-	//attacked by knight
-	if (knight_attacks[square] & ((side == white) ? bitboards[N] : bitboards[n])) {
-		return 1;
-	}
-
-	//attacked by bishops
-	if (get_bishop_attacks(square,occupancies[both]) & ((side == white) ? bitboards[B] : bitboards[b])) {
-	
-		return 1;
-	}
-
-
-	//attacked by rook
-	if (get_rook_attacks(square, occupancies[both]) & ((side == white) ? bitboards[R] : bitboards[r])) {
-
-		return 1;
-	}
-
-
-	//attacked by queen
-	if (get_queen_attacks(square, occupancies[both]) & ((side == white) ? bitboards[Q] : bitboards[q])) {
-
-		return 1;
-	}
-
-
-
-	//attacked by king
-	if (king_attacks[square] & ((side == white) ? bitboards[K] : bitboards[k])) {
-		return 1;
-	}
-
-
-	//by default return false
-	return 0;
-}
-
-//print attack squares
-void print_attacked_squares(int side) {
-
-	printf("\n");
-
-	//loop over board ranks
-	for (int rank = 0;rank < 8;rank++) {
-	
-		//loop over board files
-		for (int file = 0;file < 8;file++) {
-		
-			//init current square
-			int square = rank * 8 + file;
-
-			//print ranks
-			if (!file)
-				printf(" %d ", 8 - rank);
-
-			//check whether the current square is attacked or not
-			printf(" %d",is_square_attacked(square, side)?1:0);
-		}
-
-		//print new line every rank
-		printf("\n");
-
-
-	}
-
-	//print files
-	printf("\n    a b c d e f g h\n\n");
-}
 
 /*
 * ***************************
