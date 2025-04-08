@@ -1716,6 +1716,26 @@ static inline int make_move(int move, int move_flag) {
 		//update both sides occupancies
 		occupancies[both] |= occupancies[white];
 		occupancies[both] |= occupancies[black];
+
+		//change side
+		side ^= 1;
+
+		//make sure that king has not been exposed into a check
+		if (is_square_attacked((side == white) ? get_ls1b_index(bitboards[k]) : get_ls1b_index(bitboards[K]), side)) {
+		
+			//take move back
+			take_back();
+
+			//return illegal move
+			return 0;
+		}
+		//
+		else {
+		
+			//return legal move
+			return 1;
+		}
+
 	}
 
 
@@ -2307,7 +2327,7 @@ int main() {
 	init_all();
 
 	//parse fen
-	parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ");
+	parse_fen("r3k2r/pqpQ1pb1/1n2pnp1/3P4/1p2P3/2N3p/PPPBBPPP/R3K2R b KQkq - 0 1 ");
 	//parse_fen(tricky_position);
 	print_board();
 	printf("%lu\n", sizeof(occupancies));
@@ -2331,15 +2351,18 @@ int main() {
 		copy_board();
 
 		//make move
-		make_move(move, all_moves);
+		if (!make_move(move, all_moves))
+		{
+		
+			//skip to the next move
+			continue;
+		}
 		print_board();
-		print_bitboard(occupancies[white]);
 		getchar();
 
 		//take back
 		take_back();
 		print_board();
-		print_bitboard(occupancies[white]);
 		getchar();
 	}
 
