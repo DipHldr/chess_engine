@@ -1545,7 +1545,7 @@ static inline int make_move(int move, int move_flag) {
 		int source_square = get_move_source(move);
 		int target_square = get_move_target(move);
 		int piece = get_move_piece(move);
-		int promoted = get_move_promoted(move);
+		int promoted_piece = get_move_promoted(move);
 		int capture = get_move_capture(move);
 		int double_push = get_move_double(move);
 		int enpassant = get_move_enpassant(move);
@@ -1558,7 +1558,7 @@ static inline int make_move(int move, int move_flag) {
 
 
 		//handling capture moves
-		if (get_move_capture(move)) {
+		if (capture) {
 		
 			//pickup bit board piece index ranges depending on side
 			int start_piece, end_piece;
@@ -1588,6 +1588,16 @@ static inline int make_move(int move, int move_flag) {
 					break;
 				}
 			}
+		}
+
+		//handle pawn promotions
+		if (promoted_piece) {
+		
+			//erase the pawn from the target square
+			pop_bit(bitboards[(side == white) ? P : p], target_square);
+
+			//setup promoted piece on chess board
+			set_bit(bitboards[promoted_piece],target_square);
 		}
 	}
 
@@ -2179,8 +2189,8 @@ int main() {
 	init_all();
 
 	//parse fen
-	//parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq c6 0 1 ");
-	parse_fen(tricky_position);
+	parse_fen("r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R b KQkq c6 0 1 ");
+	//parse_fen(tricky_position);
 	print_board();
 
 
@@ -2203,14 +2213,14 @@ int main() {
 
 		//make move
 		make_move(move, all_moves);
-		//print_board();
-		print_bitboard(bitboards[p]);
+		print_board();
+		//print_bitboard(bitboards[p]);
 		getchar();
 
 		//take back
 		take_back();
-		//print_board();
-		print_bitboard(bitboards[p]);
+		print_board();
+		//print_bitboard(bitboards[p]);
 		getchar();
 	}
 
