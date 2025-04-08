@@ -1618,6 +1618,45 @@ static inline int make_move(int move, int move_flag) {
 			(side == white) ? (enpassant = target_square + 8) :
 				(enpassant = target_square - 8);
 		}
+
+		//handle caastling moves
+		if (castling) {
+		
+			// switch target square 
+			switch (target_square) {
+			
+				//white king castles king side
+			case(g1):
+				//move H rook
+				pop_bit(bitboards[R], h1);
+				set_bit(bitboards[R], f1);
+				break;
+
+
+				//white castles queen side
+			case(c1):
+				//move A rook
+				pop_bit(bitboards[R], a1);
+				set_bit(bitboards[R], d1);
+				break;
+
+
+				//black castles king side
+			case(g8):
+				//move H rook
+				pop_bit(bitboards[r], h8);
+				set_bit(bitboards[r], f8);
+				break;
+
+
+				//black castles queen side
+			case(c8):
+				//move A rook
+				pop_bit(bitboards[r], a8);
+				set_bit(bitboards[r], d8);
+				break;
+			}
+		}
 	}
 
 	//capture moves
