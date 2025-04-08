@@ -1695,6 +1695,27 @@ static inline int make_move(int move, int move_flag) {
 		//updating castling rights
 		castle &= castling_rights[source_square];
 		castle &= castling_rights[target_square];
+
+		//reset occupancies
+		memset(occupancies, 0ULL, 24);
+
+		//loop over white pieces bitboards
+		for (int bb_piece = P;bb_piece <= K;bb_piece++) {
+		
+			//update white occupancies
+			occupancies[white] |= bitboards[bb_piece];
+		}
+
+		//loop over black pieces bitboards
+		for (int bb_piece = p;bb_piece <= k;bb_piece++) {
+
+			//update white occupancies
+			occupancies[black] |= bitboards[bb_piece];
+		}
+
+		//update both sides occupancies
+		occupancies[both] |= occupancies[white];
+		occupancies[both] |= occupancies[black];
 	}
 
 
@@ -2289,6 +2310,7 @@ int main() {
 	parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ");
 	//parse_fen(tricky_position);
 	print_board();
+	printf("%lu\n", sizeof(occupancies));
 
 
 	//create movelist instance
@@ -2311,13 +2333,13 @@ int main() {
 		//make move
 		make_move(move, all_moves);
 		print_board();
-		//print_bitboard(bitboards[p]);
+		print_bitboard(occupancies[white]);
 		getchar();
 
 		//take back
 		take_back();
 		print_board();
-		//print_bitboard(bitboards[p]);
+		print_bitboard(occupancies[white]);
 		getchar();
 	}
 
