@@ -1548,7 +1548,7 @@ static inline int make_move(int move, int move_flag) {
 		int promoted_piece = get_move_promoted(move);
 		int capture = get_move_capture(move);
 		int double_push = get_move_double(move);
-		int enpassant = get_move_enpassant(move);
+		int enpass = get_move_enpassant(move);
 		int castling = get_move_castling(move);
 
 
@@ -1599,6 +1599,17 @@ static inline int make_move(int move, int move_flag) {
 			//setup promoted piece on chess board
 			set_bit(bitboards[promoted_piece],target_square);
 		}
+
+		//handle enpassant captures
+		if (enpass) {
+		
+			//erase the pawn depending on side to move
+			(side == white) ? pop_bit(bitboards[p], target_square + 8) :
+				pop_bit(bitboards[P], target_square - 8);
+		}
+
+		//reset enpassant square
+		enpassant = no_sq;
 	}
 
 	//capture moves
@@ -2189,7 +2200,7 @@ int main() {
 	init_all();
 
 	//parse fen
-	parse_fen("r3k2r/pPppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R b KQkq c6 0 1 ");
+	parse_fen("r3k2r/p11ppqpb1/bn2pnp1/2pPN3/Pp2P3/2N2Q1p/1PPBBPPP/R3K2R b KQkq a3 0 1 ");
 	//parse_fen(tricky_position);
 	print_board();
 
