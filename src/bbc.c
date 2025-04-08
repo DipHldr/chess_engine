@@ -1610,6 +1610,14 @@ static inline int make_move(int move, int move_flag) {
 
 		//reset enpassant square
 		enpassant = no_sq;
+
+		//handle double pawn push
+		if (double_push) {
+		
+			//set enpassant square depending on side to move
+			(side == white) ? (enpassant = target_square + 8) :
+				(enpassant = target_square - 8);
+		}
 	}
 
 	//capture moves
@@ -2200,7 +2208,7 @@ int main() {
 	init_all();
 
 	//parse fen
-	parse_fen("r3k2r/p11ppqpb1/bn2pnp1/2pPN3/Pp2P3/2N2Q1p/1PPBBPPP/R3K2R b KQkq a3 0 1 ");
+	parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1 ");
 	//parse_fen(tricky_position);
 	print_board();
 
