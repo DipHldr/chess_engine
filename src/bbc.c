@@ -3,7 +3,11 @@
 #include<stdio.h>
 #include<string.h>
 
-
+#if defined(_WIN64)||defined(_WIN32)
+ #include<windows.h>
+#else
+ #include<sys/time.h>
+#endif
 //define bit board data type
 
 #define U64 unsigned long long
@@ -2317,7 +2321,18 @@ void init_all() {
 * ***************************
 */
 
+//get time in milliseconds
+int get_time_ms() {
 
+#if defined(_WIN64)||defined(_WIN32)
+	return GetTickCount();
+#else
+	struct timeval time_value;
+	gettimeofday(&time_value, NULL);
+	return time_value.tv_sec * 1000 + time_value.tv_usec / 1000;
+#endif
+
+}
 
 
 
@@ -2338,6 +2353,12 @@ int main() {
 
 	//generate moves
 	generate_moves(move_list);
+
+	
+	//start tracking time
+	int start = get_time_ms();
+
+
 
 
 
@@ -2365,6 +2386,9 @@ int main() {
 		print_board();
 		getchar();
 	}
+
+	//time taken to execute program
+	printf("time taken to execute: %dms\n", get_time_ms() - start);
 
 
 	
