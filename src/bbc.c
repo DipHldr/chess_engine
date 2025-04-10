@@ -2335,6 +2335,52 @@ int get_time_ms() {
 }
 
 
+// leaf nodes (number of positions reached during test of the move generator at a given depth)
+long nodes;
+
+
+//perft driver
+static inline void perft_driver(int depth) {
+
+	//recursion escape condition
+	if (depth == 0) {
+	
+		//increment nodes count (count reached positions)
+		nodes++;
+		return;
+	}
+	//create movelist instance
+	moves move_list[1];
+
+	//generate moves
+	generate_moves(move_list);
+
+	//loop over generated moves
+	for (int move_count = 0;move_count < move_list->count;move_count++) {
+
+		//preserve board state
+		copy_board();
+
+		//make move
+		if (!make_move(move_list->moves[move_count], all_moves))
+		{
+
+			//skip to the next move
+			continue;
+		}
+
+		//call perft driver recursively
+		perft_driver(depth - 1);
+
+
+
+		//take back
+		take_back();
+	}
+
+}
+
+
 
 int main() {
 
@@ -2342,54 +2388,27 @@ int main() {
 	init_all();
 
 	//parse fen
-	parse_fen("r3k2r/pqpQ1pb1/1n2pnp1/3P4/1p2P3/2N3p/PPPBBPPP/R3K2R b KQkq - 0 1 ");
-	//parse_fen(tricky_position);
+	//parse_fen("r3k2r/pqpQ1pb1/1n2pnp1/3P4/1p2P3/2N3p/PPPBBPPP/R3K2R b KQkq - 0 1 ");
+	parse_fen(start_position);
 	print_board();
-	printf("%lu\n", sizeof(occupancies));
+	//printf("%lu\n", sizeof(occupancies));
 
 
-	//create movelist instance
-	moves move_list[1];
-
-	//generate moves
-	generate_moves(move_list);
+	
 
 	
 	//start tracking time
 	int start = get_time_ms();
 
 
+	//perft
+	perft_driver(6);
 
-
-
-	//loop over generated moves
-	for(int move_count = 0;move_count < move_list->count;move_count++) {
 	
-		//init move
-		int move = move_list->moves[move_count];
-
-		//preserve board state
-		copy_board();
-
-		//make move
-		if (!make_move(move, all_moves))
-		{
-		
-			//skip to the next move
-			continue;
-		}
-		print_board();
-		getchar();
-
-		//take back
-		take_back();
-		print_board();
-		getchar();
-	}
 
 	//time taken to execute program
 	printf("time taken to execute: %dms\n", get_time_ms() - start);
-
+	printf("Nodes: %d\n", nodes);
 
 	
 
