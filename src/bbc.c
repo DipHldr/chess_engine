@@ -1462,9 +1462,20 @@ static inline void add_move(moves* move_list, int move) {
 //print move
 void print_move(int move) {
 
-	printf("\n%s%s%c\n", square_to_coordinates[get_move_source(move)],
-		square_to_coordinates[get_move_target(move)],
-		promoted_pieces[get_move_promoted(move)]);
+	if (get_move_promoted(move)) {
+
+		printf("%s%s%c\n", square_to_coordinates[get_move_source(move)],
+			square_to_coordinates[get_move_target(move)],
+			promoted_pieces[get_move_promoted(move)]);
+	
+	}
+	else {
+	
+		printf("%s%s\n", square_to_coordinates[get_move_source(move)],
+			square_to_coordinates[get_move_target(move)]);
+
+	}
+	
 
 }
 
@@ -2293,35 +2304,12 @@ static inline void generate_moves(moves *move_list) {
 
 
 
-
 /*
 * ***************************
-* init all
+*    perft
 * ***************************
 */
 
-//init all variables
-void init_all() {
-	//init leaper attacks
-	init_leapers_attacks();
-
-	//init slider pieces attacks
-	init_sliders_attacks(bishop);
-	init_sliders_attacks(rook);
-
-	//init magic numbers
-	//init_magic_numbers();
-}
-
-
-
-/*
-* ***************************
-* Main Drivers
-* ***************************
-*/
-
-//get time in milliseconds
 int get_time_ms() {
 
 #if defined(_WIN64)||defined(_WIN32)
@@ -2344,7 +2332,7 @@ static inline void perft_driver(int depth) {
 
 	//recursion escape condition
 	if (depth == 0) {
-	
+
 		//increment nodes count (count reached positions)
 		nodes++;
 		return;
@@ -2381,6 +2369,94 @@ static inline void perft_driver(int depth) {
 }
 
 
+//perft test
+void perft_test(int depth) {
+
+	printf("\n      Performance test \n\n");
+
+	//create movelist instance
+	moves move_list[1];
+
+	//generate moves
+	generate_moves(move_list);
+
+	//init start time
+	long start = get_time_ms();
+
+	//loop over generated moves
+	for (int move_count = 0;move_count < move_list->count;move_count++) {
+
+		//preserve board state
+		copy_board();
+
+		//make move
+		if (!make_move(move_list->moves[move_count], all_moves))
+		{
+
+			//skip to the next move
+			continue;
+		}
+
+		//cuulative nodes
+		long cumulative_nodes = nodes;
+
+		//call perft driver recursively
+		perft_driver(depth - 1);
+
+		//old nodes
+		long old_nodes = nodes - cumulative_nodes;
+
+
+
+		//take back
+		take_back();
+
+
+		//print move
+		printf("     move: %s%s%c   nodes:  %ld\n", square_to_coordinates[get_move_source(move_list->moves[move_count])],
+			square_to_coordinates[get_move_target(move_list->moves[move_count])],
+			get_move_promoted(move_list->moves[move_count])?promoted_pieces[get_move_promoted(move_list->moves[move_count])]:' ',
+			old_nodes);
+	}
+	//print results
+	printf("     Depth:  %d\n", depth);
+	printf("     Nodes:  %ld\n", nodes);
+	printf("     Time:   %ld\n\n", get_time_ms() - start);
+
+}
+
+
+
+
+/*
+* ***************************
+* init all
+* ***************************
+*/
+
+//init all variables
+void init_all() {
+	//init leaper attacks
+	init_leapers_attacks();
+
+	//init slider pieces attacks
+	init_sliders_attacks(bishop);
+	init_sliders_attacks(rook);
+
+	//init magic numbers
+	//init_magic_numbers();
+}
+
+
+
+/*
+* ***************************
+* Main Drivers
+* ***************************
+*/
+
+//get time in milliseconds
+
 
 int main() {
 
@@ -2389,7 +2465,7 @@ int main() {
 
 	//parse fen
 	//parse_fen("r3k2r/pqpQ1pb1/1n2pnp1/3P4/1p2P3/2N3p/PPPBBPPP/R3K2R b KQkq - 0 1 ");
-	parse_fen(start_position);
+	parse_fen(tricky_position);
 	print_board();
 	//printf("%lu\n", sizeof(occupancies));
 
@@ -2402,14 +2478,13 @@ int main() {
 
 
 	//perft
-	perft_driver(6);
+	perft_test(5); 
+
+
 
 	
 
-	//time taken to execute program
-	printf("time taken to execute: %dms\n", get_time_ms() - start);
-	printf("Nodes: %d\n", nodes);
-
+	
 	
 
 
