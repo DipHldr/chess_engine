@@ -2426,6 +2426,79 @@ void perft_test(int depth) {
 }
 
 
+/*
+* ***************************
+*          UCI
+* ***************************
+*/
+
+// parse user/GUI move string input (e.g. "e7e8q")
+int parse_move(char* move_string)
+{
+	// create move list instance
+	moves move_list[1];
+
+	// generate moves
+	generate_moves(move_list);
+
+	// parse source square
+	int source_square = (move_string[0] - 'a') + (8 - (move_string[1] - '0')) * 8;
+
+	// parse target square
+	int target_square = (move_string[2] - 'a') + (8 - (move_string[3] - '0')) * 8;
+
+	// loop over the moves within a move list
+	for (int move_count = 0; move_count < move_list->count; move_count++)
+	{
+		// init move
+		int move = move_list->moves[move_count];
+
+		// make sure source & target squares are available within the generated move
+		if (source_square == get_move_source(move) && target_square == get_move_target(move))
+		{
+			// init promoted piece
+			int promoted_piece = get_move_promoted(move);
+
+			// promoted piece is available
+			if (promoted_piece)
+			{
+				// promoted to queen
+				if ((promoted_piece == Q || promoted_piece == q) && move_string[4] == 'q') {
+					// return legal move
+					return move;				
+				}
+				// promoted to rook
+				else if ((promoted_piece == R || promoted_piece == r) && move_string[4] == 'r') {
+					// return legal move
+					return move;				
+				}
+				// promoted to bishop
+				else if ((promoted_piece == B || promoted_piece == b) && move_string[4] == 'b') {
+					// return legal move
+					return move;				
+				}
+				// promoted to knight
+				else if ((promoted_piece == N || promoted_piece == n) && move_string[4] == 'n') {
+					// return legal move
+					return move;		
+				}
+
+				// continue the loop on possible wrong promotions (e.g. "e7e8f")
+				continue;
+			}
+
+			// return legal move
+			return move;
+		}
+	}
+
+	// return illegal move
+	return 0;
+}
+
+
+
+
 
 
 /*
@@ -2464,28 +2537,28 @@ int main() {
 	init_all();
 
 	//parse fen
-	//parse_fen("r3k2r/pqpQ1pb1/1n2pnp1/3P4/1p2P3/2N3p/PPPBBPPP/R3K2R b KQkq - 0 1 ");
-	parse_fen(tricky_position);
+	parse_fen("r3k2r/p1ppqpb1/bn2pnp1/2pPN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq c6 0 1 ");
+	//parse_fen(tricky_position);
 	print_board();
 	//printf("%lu\n", sizeof(occupancies));
 
+	int move = parse_move("d5c6");
+
+	//if move legal
+	if (move) {
+	    //make it on board
+		make_move(move,all_moves);
+		print_board();
+	}
+	else {
+		//print error
+		printf("illegal move");
+	}
+
 
 	
-
-	
-	//start tracking time
-	int start = get_time_ms();
-
-
-	//perft
-	perft_test(5); 
-
-
-
-	
-
-	
-	
+	//parse movestring
+	//parse_move("e2e4");
 
 
 
