@@ -2610,6 +2610,39 @@ static inline int evaluate()
 * ***************************
 */
 
+
+// most valuable victim & less valuable attacker
+
+/*
+
+	(Victims) Pawn Knight Bishop   Rook  Queen   King
+  (Attackers)
+		Pawn   105    205    305    405    505    605
+	  Knight   104    204    304    404    504    604
+	  Bishop   103    203    303    403    503    603
+		Rook   102    202    302    402    502    602
+	   Queen   101    201    301    401    501    601
+		King   100    200    300    400    500    600
+
+*/
+
+// MVV LVA [attacker][victim]
+static int mvv_lva[12][12] = {
+	105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
+	104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
+	103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
+	102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
+	101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
+	100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600,
+
+	105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
+	104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
+	103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
+	102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
+	101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
+	100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
+};
+
 // half move counter
 int ply;
 
@@ -2619,6 +2652,8 @@ int best_move;
 // quiescence search
 static inline int quiescence(int alpha, int beta)
 {
+	//increment nodes count
+	nodes++;
 	// evaluate position
 	int evaluation = evaluate();
 
@@ -3146,15 +3181,29 @@ int main() {
 	//init all
 	init_all();
 
-	int debug = 0;
+	int debug = 1;
 	
 	if (debug) {
 	
 		// parse fen
 		//parse_fen("rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1 ");
-		parse_fen(start_position);
+		//parse_fen(start_position);
+		parse_fen("r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9 ");
 		print_board();
-		search_position(1);
+		//search_position(3);
+		printf("move score P x k: %d\n", mvv_lva[P][k]);
+		printf("move score P x q: %d\n", mvv_lva[P][q]);
+		printf("move score P x r: %d\n", mvv_lva[P][r]);
+		printf("move score P x b: %d\n", mvv_lva[P][b]);
+		printf("move score P x n: %d\n", mvv_lva[P][n]);
+		printf("move score P x p: %d\n", mvv_lva[P][p]);
+
+		printf("move score N x k: %d\n", mvv_lva[N][k]);
+		printf("move score N x q: %d\n", mvv_lva[N][q]);
+		printf("move score N x r: %d\n", mvv_lva[N][r]);
+		printf("move score N x b: %d\n", mvv_lva[N][b]);
+		printf("move score N x n: %d\n", mvv_lva[N][n]);
+		printf("move score N x p: %d\n", mvv_lva[N][p]);
 	}
 	else {
     //connect to GUI
