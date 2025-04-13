@@ -1465,14 +1465,14 @@ void print_move(int move) {
 
 	if (get_move_promoted(move)) {
 
-		printf("%s%s%c\n", square_to_coordinates[get_move_source(move)],
+		printf("%s%s%c", square_to_coordinates[get_move_source(move)],
 			square_to_coordinates[get_move_target(move)],
 			promoted_pieces[get_move_promoted(move)]);
 	
 	}
 	else {
 	
-		printf("%s%s\n", square_to_coordinates[get_move_source(move)],
+		printf("%s%s", square_to_coordinates[get_move_source(move)],
 			square_to_coordinates[get_move_target(move)]);
 
 	}
@@ -2610,11 +2610,104 @@ static inline int evaluate()
 * ***************************
 */
 
-//searchposition for best move
-void search_position(int depth) {
+// half move counter
+int ply;
 
-	//best move place holder
-	printf("bestmove d2d4\n");
+// best move
+int best_move;
+
+// negamax alpha beta search
+static inline int negamax(int alpha, int beta, int depth)
+{
+	// recursion escape condition
+	if (depth == 0)
+		// return evaluation
+		return evaluate();
+
+	// increment nodes count
+	nodes++;
+
+	// best move so far
+	int best_sofar;
+
+	// old value of alpha
+	int old_alpha = alpha;
+
+	// create move list instance
+	moves move_list[1];
+
+	// generate moves
+	generate_moves(move_list);
+
+	// loop over moves within a movelist
+	for (int count = 0; count < move_list->count; count++)
+	{
+		// preserve board state
+		copy_board();
+
+		// increment ply
+		ply++;
+
+		// make sure to make only legal moves
+		if (make_move(move_list->moves[count], all_moves) == 0)
+		{
+			// decrement ply
+			ply--;
+
+			// skip to next move
+			continue;
+		}
+
+		// score current move
+		int score = -negamax(-beta, -alpha, depth - 1);
+
+		// decrement ply
+		ply--;
+
+		// take move back
+		take_back();
+
+		// fail-hard beta cutoff
+		if (score >= beta)
+		{
+			// node (move) fails high
+			return beta;
+		}
+
+		// found a better move
+		if (score > alpha)
+		{
+			// PV node (move)
+			alpha = score;
+
+			// if root move
+			if (ply == 0)
+				// associate best move with the best score
+				best_sofar = move_list->moves[count];
+		}
+	}
+
+	// found better move
+	if (old_alpha != alpha)
+		// init best move
+		best_move = best_sofar;
+
+	// node (move) fails low
+	return alpha;
+}
+
+
+
+// search position for the best move
+void search_position(int depth)
+{
+	// find best move within a given position
+	int score = negamax(-50000, 50000, depth);
+
+	// best move placeholder
+	printf("bestmove ");
+	print_move(best_move);
+	printf("\n");
 }
 
 
@@ -2955,14 +3048,15 @@ int main() {
 	//init all
 	init_all();
 
-	int debug = 1;
+	int debug = 0;
 	
 	if (debug) {
 	
 		// parse fen
-		parse_fen("rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1 ");
+		//parse_fen("rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1 ");
+		parse_fen(start_position);
 		print_board();
-		printf("score: %d\n", evaluate());
+		search_position(1);
 	}
 	else {
     //connect to GUI
