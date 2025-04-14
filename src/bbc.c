@@ -2643,6 +2643,16 @@ static int mvv_lva[12][12] = {
 	100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
 };
 
+
+//killer moves[id][ply]
+int killer_moves[2][64];
+
+//history_moves[piece][square]
+int history_moves[12][64];
+
+
+
+
 // half move counter
 int ply;
 
@@ -2679,13 +2689,26 @@ static inline int score_move(int move)
 		}
 
 		// score move by MVV LVA lookup [source piece][target piece]
-		return mvv_lva[get_move_piece(move)][target_piece];
+		return mvv_lva[get_move_piece(move)][target_piece]+10000;
 	}
 
 	// score quiet move
 	else
 	{
+		// score 1st killer move
+		if (killer_moves[0][ply] == move) {
+			return 9000;		
+		}
 
+		// score 2nd killer move
+		else if (killer_moves[1][ply] == move) {
+			return 8000;		
+		}
+
+		// score history move
+		else {
+			return history_moves[get_move_piece(move)][get_move_target(move)];		
+		}
 	}
 
 	return 0;
@@ -3297,19 +3320,25 @@ int main() {
 		//parse_fen(cmk_position);
 		parse_fen(tricky_position);
 		print_board();
-		search_position(5);
+		//search_position(5);
 
 		// create move list instance
-		//moves move_list[1];
+		moves move_list[1];
 
 		// generate moves
-		//generate_moves(move_list);
+		generate_moves(move_list);
 
-		//sort_moves(move_list);
+		killer_moves[0][ply] = move_list->moves[3];
+		killer_moves[1][ply] = move_list->moves[2];
+
+		history_moves[get_move_piece(move_list->moves[0])][get_move_target(move_list->moves[0])]=35;
+
+
+		sort_moves(move_list);
 
 
 		// print move scores
-		//print_move_scores(move_list);
+		print_move_scores(move_list);
 	}
 	else {
     //connect to GUI
