@@ -2919,6 +2919,9 @@ static inline int negamax(int alpha, int beta, int depth)
 		// fail-hard beta cutoff
 		if (score >= beta)
 		{
+			// store killer moves
+			killer_moves[1][ply] = killer_moves[0][ply];
+			killer_moves[0][ply] = move_list->moves[count];
 			// node (move) fails high
 			return beta;
 		}
@@ -2926,6 +2929,10 @@ static inline int negamax(int alpha, int beta, int depth)
 		// found a better move
 		if (score > alpha)
 		{
+
+			// store history moves
+			history_moves[get_move_piece(move_list->moves[count])][get_move_target(move_list->moves[count])] += depth;
+
 			// PV node (move)
 			alpha = score;
 
@@ -3318,27 +3325,20 @@ int main() {
 		//parse_fen(start_position);
 		 // parse fen
 		//parse_fen(cmk_position);
+		//parse_fen(killer_position);
 		parse_fen(tricky_position);
 		print_board();
-		//search_position(5);
+		search_position(5);
 
 		// create move list instance
-		moves move_list[1];
-
-		// generate moves
-		generate_moves(move_list);
-
-		killer_moves[0][ply] = move_list->moves[3];
-		killer_moves[1][ply] = move_list->moves[2];
-
-		history_moves[get_move_piece(move_list->moves[0])][get_move_target(move_list->moves[0])]=35;
+		//moves move_list[1];
 
 
-		sort_moves(move_list);
+		//sort_moves(move_list);
 
 
 		// print move scores
-		print_move_scores(move_list);
+		//print_move_scores(move_list);
 	}
 	else {
     //connect to GUI
