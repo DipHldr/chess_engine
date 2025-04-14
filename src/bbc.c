@@ -2698,7 +2698,6 @@ static inline int sort_moves(moves* move_list)
 {
 	// move scores
 	int move_scores[move_list->count];
-	printf("\n\n");
 	// score all the moves within a move list
 	for (int count = 0; count < move_list->count; count++)
 		// score move
@@ -2774,6 +2773,9 @@ static inline int quiescence(int alpha, int beta)
 	// generate moves
 	generate_moves(move_list);
 
+	//sort moves
+	sort_moves(move_list);
+
 	// loop over moves within a movelist
 	for (int count = 0; count < move_list->count; count++)
 	{
@@ -2839,6 +2841,9 @@ static inline int negamax(int alpha, int beta, int depth)
 		get_ls1b_index(bitboards[k]),
 		side ^ 1);
 
+	//increase search depth if the king has been exposed in check
+	if (in_check)depth++;
+	
 	// legal moves counter
 	int legal_moves = 0;
 
@@ -2853,6 +2858,9 @@ static inline int negamax(int alpha, int beta, int depth)
 
 	// generate moves
 	generate_moves(move_list);
+
+	// sort moves
+	sort_moves(move_list);
 
 	// loop over moves within a movelist
 	for (int count = 0; count < move_list->count; count++)
@@ -3286,21 +3294,22 @@ int main() {
 		//parse_fen("rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 1 ");
 		//parse_fen(start_position);
 		 // parse fen
-		parse_fen(tricky_position); enpassant = c6;
+		//parse_fen(cmk_position);
+		parse_fen(tricky_position);
 		print_board();
-		//search_position(3);
+		search_position(5);
 
 		// create move list instance
-		moves move_list[1];
+		//moves move_list[1];
 
 		// generate moves
-		generate_moves(move_list);
+		//generate_moves(move_list);
 
-		sort_moves(move_list);
+		//sort_moves(move_list);
 
 
 		// print move scores
-		print_move_scores(move_list);
+		//print_move_scores(move_list);
 	}
 	else {
     //connect to GUI
